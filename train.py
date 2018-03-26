@@ -189,4 +189,5 @@ with tf.Graph().as_default():
                 print('\nSaved model checkpoint to {}\n'.format(path))
 
 # end
-input('\n--- Done! ---\n')
+print('\n--- Done! ---\n')
+input('\npress any key to exit...\n')

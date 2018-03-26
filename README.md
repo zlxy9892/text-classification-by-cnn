@@ -14,7 +14,7 @@ python train.py
 
 ## Visualizing results in TensorBoard
 ```shell
-tensorboard --logdir /PATH_TO_CODE/log/'your timestamp'/summaries/
+tensorboard --logdir /"PATH_OF_CODE"/log/"TIMESTAMP"/summaries/
 ```
 
 ## Descreption of files
