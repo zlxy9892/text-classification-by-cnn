@@ -187,3 +187,6 @@ with tf.Graph().as_default():
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess=sess, save_path=checkpoint_prefix, global_step=global_step)
                 print('\nSaved model checkpoint to {}\n'.format(path))
+
+# end
+input('\n--- Done! ---\n')
