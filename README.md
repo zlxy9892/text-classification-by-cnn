@@ -23,7 +23,7 @@ tensorboard --logdir /"PATH_OF_CODE"/log/"TIMESTAMP"/summaries/
 - **text_cnn.py**: The core function for generating a cnn for text classification. Model structure: embedding layer -> convolutional layer -> max-pooling layer -> softmax layer.
 - **train.py**: It implements the reading parameters, data preperation and training procedure.
 
-##*Refer to the papers:*
+## *Refer to the papers*
 
 [1]. [Kim, Y. (2014). Convolutional neural networks for sentence classification. Eprint Arxiv.](https://arxiv.org/pdf/1408.5882)
 
