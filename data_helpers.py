@@ -2,6 +2,7 @@
 
 import numpy as np
 import re
+import gensim
 
 def clean_str(string):
     """
@@ -61,3 +62,23 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
             start_index = batch_num*batch_size
             end_index = min((batch_num+1)*batch_size, data_size)
             yield shuffled_data[start_index:end_index]
+
+def load_word_vectors(vocab_dict, word_vectors_filename, is_binary=True):
+    try:
+        # vocab_size: 71291
+        word_vec_model = gensim.models.KeyedVectors.load_word2vec_format(word_vectors_filename, binary=is_binary)
+        vocab = word_vec_model.vocab
+        embedding_size = word_vec_model.vectors.shape[1]
+        embedding_matrix = np.zeros(shape=(len(vocab_dict), embedding_size))
+        for word, i in vocab_dict.items():
+            try:
+                word_vector = word_vec_model.word_vec(word)
+            except:
+                word_vector = np.random.randn(embedding_size)
+            embedding_matrix[i] = word_vector
+    except:
+        return None
+    return embedding_matrix
+
+    pre_trained_embedding_matrix = np.array([word_vec_model.word_vec(x) for x in vocab.keys()])
+    return pre_trained_embedding_matrix     # shape: [vocab_size, embedding_size] for example: [71291, 200]

@@ -20,20 +20,21 @@ FLAGS = gflags.FLAGS
 gflags.DEFINE_float('dev_sample_percentage', 0.1, 'Percentage of the training data to user for validation (dev set).')
 gflags.DEFINE_string('positive_data_file', './inputs/rt.pos', 'Data source for positive data.')
 gflags.DEFINE_string('negative_data_file', './inputs/rt.neg', 'Data source for negative data.')
+gflags.DEFINE_string('word_vector_file', './input/vectors.bin', 'pre-trained embedding matrix (word_vectors).')
 
 # model hyperparameters
 gflags.DEFINE_integer('embedding_dim', 128, 'Dimensionality of word embedding (default: 128).')
 gflags.DEFINE_string('filter_sizes', '3,4,5', "Comma-seperated filter sizes (default: '3,4,5').")
-gflags.DEFINE_integer('num_filters', 128, 'Number of filters per filter size (default: 128).')
+gflags.DEFINE_integer('num_filters', 100, 'Number of filters per filter size (default: 128).')
 gflags.DEFINE_float('dropout_keep_prob', 0.5, 'Dropout keep probability (default: 0.5).')
 gflags.DEFINE_float('l2_reg_lambda', 0.0, 'L2 regularization lambda (default: 0.0).')
 
 # training parameters
-gflags.DEFINE_integer('batch_size', 64, 'Batch size (default: 64).')
+gflags.DEFINE_integer('batch_size', 50, 'Batch size (default: 64).')
 gflags.DEFINE_integer('num_epochs', 200, 'Number of training epochs (default: 200).')
 gflags.DEFINE_integer('evaluate_every', 100, 'Evaluate model on dev set after this many of steps (default: 100).')
 gflags.DEFINE_integer('checkpoint_every', 100, 'Save model after this many steps (default: 100).')
-gflags.DEFINE_integer('num_checkpoints', 5, 'Number of checkpoints to store (default: 5).')
+gflags.DEFINE_integer('num_checkpoints', 10, 'Number of checkpoints to store (default: 5).')
 
 # device parameters
 gflags.DEFINE_bool('allow_soft_placement', True, 'Allow device soft device placement.')
@@ -48,6 +49,7 @@ for attr, value in FLAGS.flag_values_dict().items():
 print('================================\n\n')
 input('press any key to start...\n\n')
 
+
 ### data preparation ###
 # ===============================================
 
@@ -57,8 +59,16 @@ x_text, y = data_helpers.load_text_and_label(file_pos_file=FLAGS.positive_data_f
 # build vocabulary
 max_sentence_length = max([len(s.split(' ')) for s in x_text])
 vocab_prosessor = learn.preprocessing.VocabularyProcessor(max_sentence_length)
+vocab_dict = vocab_prosessor.vocabulary_._mapping
 x = vocab_prosessor.fit_transform(raw_documents=x_text)
 x = np.array(list(x))
+
+# load pre-trained embedding matrix (word_vectors)
+embedding_dim = FLAGS.embedding_dim
+pre_trained_embedding_matrix = data_helpers.load_word_vectors(vocab_dict,
+    word_vectors_filename='E:/data/ml_data/nlp/word2vec/word2vec/trunk/vectors.bin', is_binary=True)
+if pre_trained_embedding_matrix is not None:
+    embedding_dim = pre_trained_embedding_matrix.shape[1]
 
 # random shuffle data
 np.random.seed(314)
@@ -73,8 +83,9 @@ y_train, y_dev = y_shuffled[:split_index], y_shuffled[split_index:]
 
 del x, y, x_shuffled, y_shuffled
 
+vocab_size = len(vocab_prosessor.vocabulary_)
 print('max sentence lenght: {:d}'.format(max_sentence_length))
-print('vocabulary size: {:d}'.format(len(vocab_prosessor.vocabulary_)))
+print('vocabulary size: {:d}'.format(vocab_size))
 print('train/dev split: {:d} / {:d}'.format(len(x_train), len(x_dev)))
 print('================================\n\n')
 
@@ -83,6 +94,7 @@ print('================================\n\n')
 # ===============================================
 
 with tf.Graph().as_default():
+
     session_conf = tf.ConfigProto(
         allow_soft_placement=FLAGS.allow_soft_placement,
         log_device_placement=FLAGS.log_device_placement)
@@ -91,11 +103,13 @@ with tf.Graph().as_default():
         cnn = TextCNN(
             num_classes=y_train.shape[1],
             sequence_length=x_train.shape[1],
-            vocab_size=len(vocab_prosessor.vocabulary_),
-            embedding_size=FLAGS.embedding_dim,
+            vocab_size=vocab_size,
+            embedding_size=embedding_dim,
             filter_sizes=list(map(int, FLAGS.filter_sizes.split(','))),
             num_filters=FLAGS.num_filters,
-            l2_reg_lambda=FLAGS.l2_reg_lambda
+            l2_reg_lambda=FLAGS.l2_reg_lambda,
+            pre_trained_embedding_matrix=pre_trained_embedding_matrix,
+            device_name='/cpu:0'
             )
 
         # define training procedure
@@ -109,17 +123,21 @@ with tf.Graph().as_default():
         out_dir = os.path.abspath(os.path.join(os.curdir, 'log', timestamp))
         print('Writing log to {}\n'.format(out_dir))
 
+        # summary all the trainable variables
+        for var in tf.trainable_variables():
+            tf.summary.histogram(name=var.name, values=var)
+
         # summaries for loss and accuracy
         loss_summary = tf.summary.scalar('loss', cnn.loss)
         acc_summary = tf.summary.scalar('accuracy', cnn.accuracy)
 
         # train summaries
-        train_summary_op = tf.summary.merge([loss_summary, acc_summary])
+        train_summary_op = tf.summary.merge_all()
         train_summary_dir = os.path.join(out_dir, 'summaries', 'train')
         train_summary_writer = tf.summary.FileWriter(train_summary_dir, tf.get_default_graph())
 
         # dev summaries
-        dev_summary_op = tf.summary.merge([loss_summary, acc_summary])
+        dev_summary_op = tf.summary.merge_all()
         dev_summary_dir = os.path.join(out_dir, 'summaries', 'dev')
         dev_summary_writer = tf.summary.FileWriter(dev_summary_dir, tf.get_default_graph())
 
