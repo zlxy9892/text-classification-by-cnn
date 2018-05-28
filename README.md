@@ -6,6 +6,7 @@
 - tensorflow 1.6.0
 - numpy
 - python-gflags (for processing the input arguments)
+- gensim (for loading the pre-train word vectors)
 
 ## Start training
 ```python
@@ -18,7 +19,7 @@ tensorboard --logdir /"PATH_OF_CODE"/log/"TIMESTAMP"/summaries/
 ```
 
 ## Descreption of files
-- **inputs (directory)**: 
+- **inputs (directory)**:
   - **rt.pos & rt.neg:** The dataset contains 10,662 examples of movie review sentences. download from -> ["Movie Review data from Rotten Tomatoes"](http://www.cs.cornell.edu/people/pabo/movie-review-data/). One positive sentences file, one negative sentences file.
   - **vectors.bin:** Pre-trained word vectors by google's [word2vec](https://code.google.com/archive/p/word2vec/), you can download the [source-archive](https://github.com/zlxy9892/text-classification-by-cnn/tree/master/inputs/word2vec) from this github project. You can also see the [gensim (topic modelling for human)](https://radimrehurek.com/gensim/) web page for getting more help of how to use this.
 - **data_helpers.py**: It contains functions for the data loading (include pre-trained word vectors), data clean and generating batch data for training.
