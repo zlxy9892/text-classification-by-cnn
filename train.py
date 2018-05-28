@@ -11,6 +11,7 @@ import gflags
 import data_helpers
 from text_cnn import TextCNN
 
+
 ### parameters ###
 # ===============================================
 
@@ -23,7 +24,7 @@ gflags.DEFINE_string('negative_data_file', './inputs/rt.neg', 'Data source for n
 gflags.DEFINE_string('word_vector_file', './input/vectors.bin', 'pre-trained embedding matrix (word_vectors).')
 
 # model hyperparameters
-gflags.DEFINE_integer('embedding_dim', 128, 'Dimensionality of word embedding (default: 128).')
+gflags.DEFINE_integer('embedding_dim', 200, 'Dimensionality of word embedding (default: 128).')
 gflags.DEFINE_string('filter_sizes', '3,4,5', "Comma-seperated filter sizes (default: '3,4,5').")
 gflags.DEFINE_integer('num_filters', 100, 'Number of filters per filter size (default: 128).')
 gflags.DEFINE_float('dropout_keep_prob', 0.5, 'Dropout keep probability (default: 0.5).')
@@ -47,7 +48,7 @@ print('================================')
 for attr, value in FLAGS.flag_values_dict().items():
     print('{0}: {1}'.format(attr.upper(), value))
 print('================================\n\n')
-input('press any key to start...\n\n')
+input('press enter to start...\n\n')
 
 
 ### data preparation ###
@@ -65,7 +66,7 @@ x = np.array(list(x))
 
 # load pre-trained embedding matrix (word_vectors)
 embedding_dim = FLAGS.embedding_dim
-pre_trained_embedding_matrix = data_helpers.load_word_vectors(vocab_dict,
+pre_trained_embedding_matrix, prop_include_in_vocab = data_helpers.load_word_vectors(vocab_dict,
     word_vectors_filename='E:/data/ml_data/nlp/word2vec/word2vec/trunk/vectors.bin', is_binary=True)
 if pre_trained_embedding_matrix is not None:
     embedding_dim = pre_trained_embedding_matrix.shape[1]
@@ -87,6 +88,7 @@ vocab_size = len(vocab_prosessor.vocabulary_)
 print('max sentence lenght: {:d}'.format(max_sentence_length))
 print('vocabulary size: {:d}'.format(vocab_size))
 print('train/dev split: {:d} / {:d}'.format(len(x_train), len(x_dev)))
+print('proportion of the words exist in pre-trained word vectors: {:.2}'.format(prop_include_in_vocab))
 print('================================\n\n')
 
 
@@ -168,7 +170,8 @@ with tf.Graph().as_default():
                 [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             timestr = datetime.datetime.now().isoformat()
-            print('{}: step {}, loss {:g}, acc {:g}'.format(timestr, step, loss, accuracy))
+            epoch = int(step / FLAGS.num_epochs) + 1
+            print('{}: => epoch {} | step {} | loss {:g} | acc {:g}'.format(timestr, epoch, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
 
@@ -185,7 +188,8 @@ with tf.Graph().as_default():
                 [global_step, dev_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             timestr = datetime.datetime.now().isoformat()
-            print('{}: step {}, loss {:g}, acc {:g}'.format(timestr, step, loss, accuracy))
+            epoch = int(step / FLAGS.num_epochs) + 1
+            print('{}: => epoch {} | step {} | loss {:g} | acc {:g}'.format(timestr, epoch, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
 
@@ -208,4 +212,3 @@ with tf.Graph().as_default():
 
 # end
 print('\n--- Done! ---\n')
-input('\npress any key to exit...\n')

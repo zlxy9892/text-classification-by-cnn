@@ -4,6 +4,7 @@ import numpy as np
 import re
 import gensim
 
+
 def clean_str(string):
     """
     Tokenization/string cleaning for all datasets except for SST.
@@ -69,16 +70,17 @@ def load_word_vectors(vocab_dict, word_vectors_filename, is_binary=True):
         word_vec_model = gensim.models.KeyedVectors.load_word2vec_format(word_vectors_filename, binary=is_binary)
         vocab = word_vec_model.vocab
         embedding_size = word_vec_model.vectors.shape[1]
-        embedding_matrix = np.zeros(shape=(len(vocab_dict), embedding_size))
+        embedding_matrix = np.zeros(shape=(len(vocab_dict), embedding_size))    # shape: [vocab_size, embedding_size] for example: [71291, 200]
+        not_include_count = 0
         for word, i in vocab_dict.items():
             try:
                 word_vector = word_vec_model.word_vec(word)
             except:
                 word_vector = np.random.randn(embedding_size)
+                not_include_count += 1
             embedding_matrix[i] = word_vector
     except:
-        return None
-    return embedding_matrix
-
-    pre_trained_embedding_matrix = np.array([word_vec_model.word_vec(x) for x in vocab.keys()])
-    return pre_trained_embedding_matrix     # shape: [vocab_size, embedding_size] for example: [71291, 200]
+        return None, None
+    prop_include_in_vocab = 1.0 - float(not_include_count) / len(vocab_dict.items())
+    embedding_matrix = embedding_matrix.astype(np.float32)
+    return embedding_matrix, prop_include_in_vocab

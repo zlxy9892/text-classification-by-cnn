@@ -3,6 +3,7 @@
 import numpy as np
 import tensorflow as tf
 
+
 class TextCNN(object):
     '''
     A cnn for text classification.
@@ -27,10 +28,11 @@ class TextCNN(object):
             with tf.name_scope('embedding'):
                 # embedding layer
                 # define W [vocab_size, embedding_size], W can put the vocabulary map to embedding (high dimension -> low dimension)
-                self.W = tf.Variable(initial_value=tf.random_uniform(
-                    shape=[vocab_size, embedding_size], minval=-1.0, maxval=1.0), name='W')
                 if pre_trained_embedding_matrix is not None:
-                    self.W.assign(value=pre_trained_embedding_matrix)
+                    self.W = tf.Variable(initial_value=pre_trained_embedding_matrix, name='W')
+                else:
+                    self.W = tf.Variable(initial_value=tf.random_uniform(
+                        shape=[vocab_size, embedding_size], minval=-1.0, maxval=1.0), name='W')
                 self.embedded_words = tf.nn.embedding_lookup(params=self.W, ids=self.input_x)    # shape: [None, sequence_length, embedding_size]
                 self.embedded_words_expanded = tf.expand_dims(self.embedded_words, -1)    # add one dimension of channel. the final shape is 4 dimension: [None, sequence_length, embedding_size, 1]
 
