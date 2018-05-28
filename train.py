@@ -21,7 +21,7 @@ FLAGS = gflags.FLAGS
 gflags.DEFINE_float('dev_sample_percentage', 0.1, 'Percentage of the training data to user for validation (dev set).')
 gflags.DEFINE_string('positive_data_file', './inputs/rt.pos', 'Data source for positive data.')
 gflags.DEFINE_string('negative_data_file', './inputs/rt.neg', 'Data source for negative data.')
-gflags.DEFINE_string('word_vector_file', './input/vectors.bin', 'pre-trained embedding matrix (word_vectors).')
+gflags.DEFINE_string('word_vector_file', './inputs/vectors.bin', 'pre-trained embedding matrix (word_vectors).')
 
 # model hyperparameters
 gflags.DEFINE_integer('embedding_dim', 200, 'Dimensionality of word embedding (default: 128).')
