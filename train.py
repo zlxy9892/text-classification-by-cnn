@@ -67,7 +67,7 @@ x = np.array(list(x))
 # load pre-trained embedding matrix (word_vectors)
 embedding_dim = FLAGS.embedding_dim
 pre_trained_embedding_matrix, prop_include_in_vocab = data_helpers.load_word_vectors(vocab_dict,
-    word_vectors_filename=FLAGS.word_vectors_filename, is_binary=True)
+    word_vectors_filename=FLAGS.word_vector_file, is_binary=True)
 if pre_trained_embedding_matrix is not None:
     embedding_dim = pre_trained_embedding_matrix.shape[1]
 
