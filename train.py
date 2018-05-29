@@ -81,6 +81,7 @@ y_shuffled = y[shuffle_indices]
 split_index = -int(float(len(y)) * FLAGS.dev_sample_percentage)
 x_train, x_dev = x_shuffled[:split_index], x_shuffled[split_index:]
 y_train, y_dev = y_shuffled[:split_index], y_shuffled[split_index:]
+data_size_train = len(x_train)
 
 del x, y, x_shuffled, y_shuffled
 
@@ -170,7 +171,9 @@ with tf.Graph().as_default():
                 [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             timestr = datetime.datetime.now().isoformat()
-            epoch = int(step / FLAGS.num_epochs) + 1
+            batch_size = FLAGS.batch_size
+            num_batches_per_epoch = int((data_size_train-1)/batch_size)+1
+            epoch = int(step/num_batches_per_epoch)+1
             print('{}: => epoch {} | step {} | loss {:g} | acc {:g}'.format(timestr, epoch, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
@@ -188,7 +191,9 @@ with tf.Graph().as_default():
                 [global_step, dev_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             timestr = datetime.datetime.now().isoformat()
-            epoch = int(step / FLAGS.num_epochs) + 1
+            batch_size = FLAGS.batch_size
+            num_batches_per_epoch = int((data_size_train-1)/batch_size)+1
+            epoch = int(step/num_batches_per_epoch)+1
             print('{}: => epoch {} | step {} | loss {:g} | acc {:g}'.format(timestr, epoch, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
