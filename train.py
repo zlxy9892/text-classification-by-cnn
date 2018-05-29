@@ -28,7 +28,7 @@ gflags.DEFINE_integer('embedding_dim', 200, 'Dimensionality of word embedding (d
 gflags.DEFINE_string('filter_sizes', '3,4,5', "Comma-seperated filter sizes (default: '3,4,5').")
 gflags.DEFINE_integer('num_filters', 100, 'Number of filters per filter size (default: 128).')
 gflags.DEFINE_float('dropout_keep_prob', 0.5, 'Dropout keep probability (default: 0.5).')
-gflags.DEFINE_float('l2_reg_lambda', 0.0, 'L2 regularization lambda (default: 0.0).')
+gflags.DEFINE_float('l2_reg_lambda', 3.0, 'L2 regularization lambda (default: 0.0).')
 
 # training parameters
 gflags.DEFINE_integer('batch_size', 50, 'Batch size (default: 64).')
@@ -173,7 +173,7 @@ with tf.Graph().as_default():
             timestr = datetime.datetime.now().isoformat()
             batch_size = FLAGS.batch_size
             num_batches_per_epoch = int((data_size_train-1)/batch_size)+1
-            epoch = int(step/num_batches_per_epoch)+1
+            epoch = int((step-1)/num_batches_per_epoch)+1
             print('{}: => epoch {} | step {} | loss {:g} | acc {:g}'.format(timestr, epoch, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
