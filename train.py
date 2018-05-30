@@ -171,8 +171,7 @@ with tf.Graph().as_default():
                 [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             timestr = datetime.datetime.now().isoformat()
-            batch_size = FLAGS.batch_size
-            num_batches_per_epoch = int((data_size_train-1)/batch_size)+1
+            num_batches_per_epoch = int((data_size_train-1)/FLAGS.batch_size)+1
             epoch = int((step-1)/num_batches_per_epoch)+1
             print('{}: => epoch {} | step {} | loss {:g} | acc {:g}'.format(timestr, epoch, step, loss, accuracy))
             if writer:
@@ -191,8 +190,7 @@ with tf.Graph().as_default():
                 [global_step, dev_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             timestr = datetime.datetime.now().isoformat()
-            batch_size = FLAGS.batch_size
-            num_batches_per_epoch = int((data_size_train-1)/batch_size)+1
+            num_batches_per_epoch = int((data_size_train-1)/FLAGS.batch_size)+1
             epoch = int(step/num_batches_per_epoch)+1
             print('{}: => epoch {} | step {} | loss {:g} | acc {:g}'.format(timestr, epoch, step, loss, accuracy))
             if writer:
