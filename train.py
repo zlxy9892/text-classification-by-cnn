@@ -31,7 +31,7 @@ gflags.DEFINE_float('dropout_keep_prob', 0.5, 'Dropout keep probability (default
 gflags.DEFINE_float('l2_reg_lambda', 3.0, 'L2 regularization lambda (default: 0.0).')
 
 # training parameters
-gflags.DEFINE_integer('batch_size', 50, 'Batch size (default: 64).')
+gflags.DEFINE_integer('batch_size', 50, 'Batch size (default: 50).')
 gflags.DEFINE_integer('num_epochs', 200, 'Number of training epochs (default: 200).')
 gflags.DEFINE_integer('evaluate_every', 100, 'Evaluate model on dev set after this many of steps (default: 100).')
 gflags.DEFINE_integer('checkpoint_every', 100, 'Save model after this many steps (default: 100).')
