@@ -8,6 +8,9 @@
 - python-gflags (for processing the input arguments)
 - gensim (for loading the pre-train word vectors)
 
+## Model structure
+![model_structure](./model_structure.png)
+
 ## Start training
 ```python
 python train.py
